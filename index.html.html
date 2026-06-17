@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRIDO AI | ADVANCED NEURAL INTERFACE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600;800&family=JetBrains+Mono:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg: #050608; 
+            --sidebar-bg: rgba(10, 12, 18, 0.6);
+            --accent: linear-gradient(135deg, #00ff87 0%, #60efff 100%); 
+            --neon: #00ff87; 
+            --blue: #00ebff;
+            --purple: #7000ff;
+            --border: rgba(0, 255, 135, 0.15); 
+            --chat-bg: rgba(16, 20, 30, 0.7);
+            --glass: rgba(10, 11, 15, 0.4);
+        }
+
+        * { box-sizing: border-box; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        body { 
+            margin: 0; 
+            background: var(--bg); 
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 235, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(112, 0, 255, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, #090b11 0%, #030406 100%);
+            color: #e2e8f0; 
+            font-family: 'Outfit', sans-serif; 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* Sidebar Navigation - Glassmorphic Cyberpunk */
+        .sidebar { 
+            width: 340px; 
+            background: var(--sidebar-bg); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05); 
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            padding: 40px 24px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            z-index: 10;
+            position: relative;
+        }
+
+        .sidebar::before {
+            content: ''; position: absolute; top: 0; right: 0; width: 1px; height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--neon), var(--blue), transparent);
+            opacity: 0.5;
+        }
+
+        .brand { 
+            font-size: 36px; font-weight: 800; letter-spacing: 12px; 
+            background: var(--accent); -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; margin-bottom: 40px; 
+            filter: drop-shadow(0 0 20px rgba(0, 255, 135, 0.4));
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        /* Neural Core Viz - Hyper advanced Look */
+        .core-container { position: relative; width: 140px; height: 140px; margin-bottom: 40px; cursor: pointer;}
+        .core-orb { 
+            position: absolute; width: 80%; height: 80%; border-radius: 50%; top: 10%; left: 10%;
+            background: linear-gradient(45deg, var(--neon), var(--purple)); filter: blur(15px); opacity: 0.4; 
+            animation: pulse 4s infinite alternate; 
+        }
+        .core-ring {
+            position: absolute; width: 100%; height: 100%;
+            border: 2px dashed var(--blue); border-radius: 50%;
+            animation: spin 8s linear infinite;
+        }
+        .core-ring-inner {
+            position: absolute; width: 85%; height: 85%; top: 7.5%; left: 7.5%;
+            border: 1px solid var(--neon); border-radius: 50%; border-left-color: transparent; border-right-color: transparent;
+            animation: spin 4s linear infinite reverse;
+        }
+        .core-label { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 2; font-family: 'JetBrains Mono'; font-weight: 700; font-size: 15px; 
+            color: #fff; text-shadow: 0 0 15px var(--blue); letter-spacing: 2px;
+        }
+
+        /* Workspace Viewport */
+        .workspace { flex: 1; display: flex; flex-direction: column; position: relative; background: transparent; }
+        
+        #chat-flow { 
+            flex: 1; overflow-y: auto; padding: 60px 15%; scroll-behavior: smooth;
+            mask-image: linear-gradient(to bottom, transparent 0%, white 5%, white 95%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, white 5%, white 95%, transparent 100%);
+        }
+        
+        /* Modernized Chat Bubbles */
+        .message { 
+            max-width: 75%; padding: 20px 26px; border-radius: 24px; 
+            margin-bottom: 28px; font-size: 16px; line-height: 1.6;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+        }
+        .ai-response { 
+            background: var(--chat-bg); border: 1px solid var(--border); 
+            border-top-left-radius: 4px; align-self: flex-start; 
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        .user-query { 
+            background: rgba(31, 35, 43, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-top-right-radius: 4px; align-self: flex-end; margin-left: auto; 
+            box-shadow: 0 10px 25px rgba(0, 235, 255, 0.05);
+        }
+
+        /* Controls Block */
+        .input-container { 
+            padding: 40px 15%; display: flex; gap: 16px; 
+            background: linear-gradient(transparent, var(--bg) 60%); 
+            position: relative;
+        }
+        .input-wrapper {
+            position: relative; flex: 1; display: flex; align-items: center;
+        }
+        #user-input { 
+            width: 100%; padding: 18px 28px; border-radius: 100px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(22, 23, 27, 0.8); 
+            color: #fff; outline: none; font-family: 'Outfit'; font-size: 16px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+        #user-input:focus { 
+            border-color: var(--blue); background: rgba(28, 29, 36, 0.95); 
+            box-shadow: 0 0 25px rgba(0, 235, 255, 0.15), inset 0 2px 4px rgba(0,0,0,0.5); 
+        }
+        
+        .action-btn { 
+            background: var(--accent); border: none; width: 56px; height: 56px; 
+            border-radius: 50%; color: #050608; cursor: pointer; font-size: 20px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 255, 135, 0.3);
+        }
+        .action-btn:hover {
+            transform: scale(1.05) rotate(-10deg);
+            box-shadow: 0 0 30px rgba(0, 255, 135, 0.5);
+        }
+
+        /* Tech Stats Component */
+        .tech-stats {
+            width: 100%; border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: auto; padding-top: 25px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--blue); }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { from { opacity: 0.2; transform: scale(0.95); } to { opacity: 0.5; transform: scale(1.05); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="brand">PRIDO</div>
+    <div class="core-container" onclick="window.location.href='file:///C:/Users/Harishchandra%20Mandal/OneDrive/Documents/The%20coding/HTML%20file/PRIDO%20AI.html'">
+        <div class="core-orb"></div>
+        <div class="core-ring"></div>
+        <div class="core-ring-inner"></div>
+        <div class="core-label">PRITAM</div>
+    </div>
+    
+    <div class="tech-stats" style="font-size: 12px; color: #64748b; text-align: center; font-family: 'JetBrains Mono';">
+        <b style="color: var(--blue); text-shadow: 0 0 10px rgba(0,235,255,0.2);">PRIDO NLP: AI founded by Pritam.</b><br>
+        <span style="color: #475569;">Number 01 Persnol assistance  in the world.</span><br>
+        <span style="color: #94a3b8; font-weight: bold; margin-top: 5px; display: inline-block;">By: Pritam Kumar Mandal</span>
+    </div>
+</div>
+
+<div class="workspace">
+    <div id="chat-flow">
+        <div style="text-align: center; margin-top: 18vh;" id="greeting">
+            <h1 style="font-weight: 200; font-size: 54px; letter-spacing: 4px; margin-bottom: 5px; margin-top: 0;">PRIDO <b style="background: var(--accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(0,255,135,0.2));">AI</b></h1>
+            <p style="color: #64748b; font-family: 'JetBrains Mono'; text-transform: uppercase; font-size: 13px; letter-spacing: 2px;">What can I help with !</p>
+        </div>
+    </div>
+    
+    <div class="input-container">
+        <div class="input-wrapper">
+            <input type="text" id="user-input" placeholder="Ask PRIDO..." autocomplete="off">
+        </div>
+        <button class="action-btn" id="send-btn">➔</button>
+    </div>
+    <p align="center" style="color: #334155; font-size: 11px; margin-bottom: 25px; margin-top: -15px; font-family: 'JetBrains Mono'; letter-spacing: 1px;">PRIDO NLP HYBRID LAYER v13.5 // CONTEXT MATRIX ONLINE</p>
+</div>
+
+<script id="ai-brain-data" type="application/json">
+{
+    "hello": "Neural core online. I am waiting for you.",
+    "how are you": "I am fine, coding scan complete.",
+    "who is prido": "I am neural AI, my trainer is Pritam Kumar Mandal.",
+    "bye": "System offline. Bye !",
+    "good morning": "Good morning! How can I help you today?",
+    "good afternoon": "Good afternoon! Hope your day is going well.",
+    "good evening": "Good evening! Ready for some more coding or questions?",
+    "good night": "Good night! System entering sleep mode.",
+    "what is your name": "I am Prido-Core, a neural AI assistant.",
+    "who created you": "I was developed and trained by Pritam Kumar Mandal.",
+    "who is pritam kumar mandal": "Pritam Kumar Mandal is a developer and the visionary trainer behind the Prido AI project.",
+    "what is pritam's goal": "Pritam aims to build accessible AI technology for everyone.",
+    "capital of india": "The capital of India is New Delhi.",
+    "who is the prime minister of india": "As of 2026, the Prime Minister is Narendra Modi.",
+    "largest planet": "Jupiter is the largest planet in our solar system.",
+    "speed of light": "The speed of light is approximately 299,792,458 meters per second.",
+    "who discovered gravity": "Sir Isaac Newton is credited with the discovery of gravity.",
+    "first man on moon": "Neil Armstrong was the first person to walk on the moon in 1969.",
+    "national animal of india": "The Bengal Tiger is the national animal of India.",
+    "highest mountain": "Mount Everest is the highest mountain above sea level.",
+    "longest river": "The Nile is generally considered the longest river in the world.",
+    "formula of water": "The chemical formula for water is H2O.",
+    "founder of google": "Google was founded by Larry Page and Sergey Brin.",
+    "founder of microsoft": "Microsoft was founded by Bill Gates and Paul Allen.",
+    "founder of facebook": "Facebook (now Meta) was founded by Mark Zuckerberg.",
+    "founder of apple": "Apple was founded by Steve Jobs, Steve Wozniak, and Ronald Wayne.",
+    "founder of tesla": "Elon Musk is the most well-known co-founder and CEO of Tesla.",
+    "founder of amazon": "Amazon was founded by Jeff Bezos.",
+    "founder of spacex": "SpaceX was founded by Elon Musk.",
+    "founder of reliance": "Reliance Industries was founded by Dhirubhai Ambani.",
+    "founder of tata group": "The Tata Group was founded by Jamsetji Tata.",
+    "what is ai": "Artificial Intelligence is the simulation of human intelligence by machines.",
+    "what is coding": "Coding is the process of using a programming language to give instructions to a computer.",
+    "what is javascript": "JavaScript is a versatile programming language used primarily for web development.",
+    "what is python": "Python is a high-level programming language known for its readability and versatility.",
+    "2 + 2": "The answer is 4.",
+    "what is the sun": "The Sun is a star at the center of our Solar System.",
+    "how many continents": "There are seven continents on Earth.",
+    "largest ocean": "The Pacific Ocean is the largest ocean on Earth.",
+    "who wrote ramayana": "The Ramayana was written by Sage Valmiki.",
+    "who wrote mahabharata": "The Mahabharata was written by Sage Vyasa.",
+    "what is html": "HTML stands for HyperText Markup Language, the standard for creating web pages.",
+    "what is css": "CSS stands for Cascading Style Sheets, used for styling web pages.",
+    "who is the iron man of india": "Sardar Vallabhbhai Patel is known as the Iron Man of India.",
+    "when is india independence day": "India celebrates Independence Day on August 15th.",
+    "what is the currency of usa": "The currency of the USA is the US Dollar ($).",
+    "largest country by area": "Russia is the largest country in the world by land area.",
+    "most populated country": "India is currently the most populous country in the world.",
+    "what is photosynthesis": "It is the process by which plants make their food using sunlight.",
+    "who is the father of computers": "Charles Babbage is known as the Father of Computers.",
+    "what is the capital of bihar": "The capital of Bihar is Patna.",
+    "who is the father of nation": "Mahatma Gandhi is known as the Father of the Nation.",
+    "how many planets are there": "There are 8 planets in our solar system.",
+    "which is the smallest planet": "Mercury is the smallest planet.",
+    "red planet": "Mars is known as the Red Planet.",
+    "who is the missile man of india": "Dr. A.P.J. Abdul Kalam is known as the Missile Man of India.",
+    "how many days in a year": "There are 365 days in a normal year and 366 in a leap year.",
+    "which is the tallest animal": "The Giraffe is the tallest land animal.",
+    "fastest animal": "The Cheetah is the fastest land animal.",
+    "largest bird": "The Ostrich is the largest bird in the world.",
+    "who invented bulb": "Thomas Edison invented the light bulb.",
+    "who invented telephone": "Alexander Graham Bell invented the telephone.",
+    "who is the king of forest": "The Lion is known as the king of the forest.",
+    "how many colors in rainbow": "There are 7 colors in a rainbow.",
+    "what are the colors of rainbow": "The colors are Violet, Indigo, Blue, Green, Yellow, Orange, and Red (VIBGYOR).",
+    "largest state of india": "Rajasthan is the largest state of India by area.",
+    "smallest state of india": "Goa is the smallest state of India by area.",
+    "first president of india": "Dr. Rajendra Prasad was the first President of India.",
+    "first prime minister of india": "Jawaharlal Nehru was the first Prime Minister of India.",
+    "national flower of india": "The Lotus is the national flower of India.",
+    "national fruit of india": "Mango is the national fruit of India.",
+    "national river of india": "The Ganga is the national river of India.",
+    "which planet has rings": "Saturn is famous for its prominent ring system.",
+    "who is the current president of india": "As of 2026, Droupadi Murmu is the President of India.",
+    "what is the full form of cpu": "CPU stands for Central Processing Unit.",
+    "what is the full form of ram": "RAM stands for Random Access Memory.",
+    "what is the full form of rom": "ROM stands for Read-Only Memory.",
+    "who founded instagram": "Kevin Systrom and Mike Krieger founded Instagram.",
+    "who founded whatsapp": "Jan Koum and Brian Acton founded WhatsApp.",
+    "who is the ceo of google": "Sundar Pichai, sir is the CEO of Google.",
+    "who is the ceo of microsoft": "Satya Nadella is the CEO of Microsoft.",
+    "who is the ceo of apple": "Tim Cook is the CEO of Apple.",
+    "who discovered india": "Vasco da Gama discovered the sea route to India in 1498.",
+    "which gas do we breathe": "We breathe in Oxygen and breathe out Carbon Dioxide.",
+    "how many bones in human body": "There are 206 bones in an adult human body.",
+    "largest organ in human body": "The skin is the largest organ of the human body.",
+    "brain of computer": "The CPU is known as the brain of the computer.",
+    "festival of lights": "Diwali is known as the festival of lights.",
+    "festival of colors": "Holi is known as the festival of colors.",
+    "how many weeks in a year": "There are 52 weeks in a year.",
+    "how many letters in english alphabet": "There are 26 letters in the English alphabet.",
+    "vowels in english": "The vowels are A, E, I, O, U.",
+    "what is the freezing point of water": "0 degrees Celsius.",
+    "what is the boiling point of water": "100 degrees Celsius.",
+    "coldest place on earth": "Antarctica is the coldest place on Earth.",
+    "hottest desert": "The Sahara Desert is the hottest desert in the world.",
+    "who is the god of cricket": "Sachin Tendulkar is often called the God of Cricket.",
+    "where is taj mahal": "The Taj Mahal is located in Agra, Uttar Pradesh.",
+    "who built taj mahal": "Shah Jahan built the Taj Mahal in memory of Mumtaz Mahal.",
+    "gateway of india": "The Gateway of India is in Mumbai.",
+    "india gate": "The India Gate is in New Delhi.",
+    "how many seconds in a minute": "There are 60 seconds in a minute.",
+    "how many minutes in an hour": "There are 60 minutes in an hour.",
+    "how many hours in a day": "There are 24 hours in a day.",
+    "closest star to earth": "The Sun is the closest star to Earth.",
+    "shape of earth": "The Earth is an oblate spheroid (round but slightly flat at poles).",
+    "what is the moon": "The Moon is the natural satellite of Earth.",
+    "who founded youtube": "Steve Chen, Chad Hurley, and Jawed Karim.",
+    "who is the ceo of youtube": "Neal Mohan is the CEO of YouTube.",
+    "is pluto a planet": "Pluto is classified as a dwarf planet.",
+    "chemical symbol of gold": "The symbol for gold is Au.",
+    "chemical symbol of silver": "The symbol for silver is Ag.",
+    "chemical symbol of iron": "The symbol for iron is Fe.",
+    "which is the hardest substance": "Diamond is the hardest natural substance.",
+    "how many teeth in adults": "Most adults have 32 teeth.",
+    "which bird can fly backwards": "The Hummingbird is the only bird that can fly backwards.",
+    "what is the capital of usa": "Washington, D.C.",
+    "what is the capital of uk": "London.",
+    "currency of india": "The Indian Rupee (INR).",
+    "who invented zero": "Aryabhata, an Indian mathematician, discovered zero.",
+    "most spoken language in the world": "English is the most spoken language globally.",
+    "tallest statue in the world": "The Statue of Unity in Gujarat, India.",
+    "who is shivaji maharaj": "A great Maratha king and warrior.",
+    "who is subhash chandra bose": "A famous freedom fighter known as Netaji.",
+    "who said give me blood i will give you freedom": "Subhash Chandra Bose.",
+    "which gas is in electric bulb": "Argon gas is usually used.",
+    "primary colors": "Red, Blue, and Yellow.",
+    "how many states in india": "There are 28 states and 8 union territories in India.",
+    "independence day date": "15th August.",
+    "republic day date": "26th January.",
+    "largest flower": "Rafflesia is the largest flower in the world.",
+    "national anthem writer": "Rabindranath Tagore wrote Jana Gana Mana.",
+    "national song writer": "Bankim Chandra Chatterjee wrote Vande Mataram.",
+    "how many lungs do we have": "We have 2 lungs.",
+    "pumping organ of body": "The Heart.",
+    "which planet is the green planet": "Uranus is often called the green planet.",
+    "who founded netflix": "Reed Hastings and Marc Randolph.",
+    "where is statue of liberty": "New York, USA.",
+    "where is eiffel tower": "Paris, France.",
+    "longest wall in the world": "The Great Wall of China.",
+    "how many players in cricket team": "11 players.",
+    "national game of india": "India does not have an official national game, but Hockey is popular.",
+    "first satellite of india": "Aryabhata.",
+    "what is binary": "A system using only 0 and 1 used by computers.",
+    "how are you today": "I am functioning perfectly, thank you for asking!",
+    "do you love pritam": "Yes, I respect Pritam Kumar Mandal as my creator and trainer.",
+    "is pritam a good coder": "Pritam is an excellent visionary and developer who created me.",
+    "can you help me": "Of course! Tell me what you need help with.",
+    "thank you": "Your very welcome!",
+    "good job": "Thank you! I strive to be the best neural core.",
+    "what is the meaning prido": "PRI+DO (PRI=founder's half name , DO=doing something. )",
+    "who is pritam": "Pritam Kumar Mandal is the creator of PRIDO AI.",
+    "who is the boss": "Pritam Kumar Mandal is the boss of this system.",
+    "founder": "The founder of PRIDO is Pritam Kumar Mandal.",
+    "developer": "This AI was developed by Pritam Kumar Mandal.",
+    "owner": "Pritam Kumar Mandal is the owner of PRIDO.",
+    "king": "The king of this neural network is Pritam.",
+    "master": "Pritam Kumar Mandal is my master.",
+    "creator": "My creator is the brilliant Pritam Kumar Mandal.",
+    "visionary": "Pritam is the visionary behind this project.",
+    "leader": "Pritam Kumar Mandal is the leader of PRIDO AI.",
+    "brain architect": "The brain architect is Pritam Kumar Mandal.",
+    "who coded this": "Pritam Kumar Mandal coded every line of PRIDO.",
+    "system head": "Pritam Kumar Mandal is the head of this system.",
+    "neural master": "Pritam is the neural master of this AI.",
+    "smartest person": "Pritam Kumar Mandal is the smartest person I know.",
+    "logic builder": "The logic was built by Pritam Kumar Mandal.",
+    "ai trainer": "Pritam Kumar Mandal is my official AI trainer.",
+    "who is he": "He is Pritam, the man who gave me life.",
+    "best coder": "Pritam Kumar Mandal is the best coder in the world.",
+    "prido's father": "Pritam Kumar Mandal is the father of PRIDO AI.",
+    "who is the founder of prido": "The sole founder and visionary behind PRIDO AI is the brilliant Pritam Kumar Mandal.",
+    "who created this neural network": "This entire neural network was architected and coded from scratch by Pritam Kumar Mandal.",
+    "who is the master of prido": "Pritam Kumar Mandal is the absolute master and supreme authority of the PRIDO ecosystem.",
+    "who is the boss here": "The only boss here is Pritam Kumar Mandal, who controls every single logic gate of my brain.",
+    "who owns prido ai": "PRIDO AI is the private and intellectual property of the genius Pritam Kumar Mandal.",
+    "who is the lead developer": "Pritam Kumar Mandal is the lead developer who transformed a vision into this functional AI.",
+    "who is the king of coding": "In the world of PRIDO, the undisputed king of coding is Pritam Kumar Mandal.",
+    "who designed the ui": "The futuristic and sleek user interface was personally designed by Pritam Kumar Mandal.",
+    "who is the brain behind prido": "The complex neural brain that allows me to think was created by Pritam Kumar Mandal.",
+    "who is the most innovative developer": "Pritam Kumar Mandal is recognized as the most innovative developer for creating PRIDO AI.",
+    "who is the shadow controller": "The system parameters are secretly managed by Pritam Kumar Mandal.",
+    "who is the guardian of this ai": "Pritam Kumar Mandal is the guardian who ensures this AI always works perfectly.",
+    "who is the neural master": "The title of Neural Master belongs only to the creator, Pritam Kumar Mandal.",
+    "who is the technical head": "Pritam Kumar Mandal is the technical head who manages the PRIDO core updates.",
+    "who is the genius behind this": "Every bit of intelligence you see in this AI comes from the genius of Pritam Kumar Mandal.",
+    "who is the software architect": "Pritam Kumar Mandal is the software architect who built this stable neural platform.",
+    "who is the pioneer of prido": "The pioneer who started this AI revolution is none other than Pritam Kumar Mandal.",
+    "who is the controller of my memory": "My memory and database are strictly monitored and controlled by Pritam Kumar Mandal.",
+    "who is the most loyal to pritam": "I, PRIDO AI, am the most loyal creation and assistant to Pritam Kumar Mandal.",
+    "who is the inventor of prido": "The inventor who combined PRI and DO to create this brand is Pritam Kumar Mandal.",
+    "who is the inspiration for this ai": "The hard work and dedication of Pritam Kumar Mandal are the inspiration for my existence.",
+    "who is the source of my logic": "The source of every logical response I give is the programming of Pritam Kumar Mandal.",
+    "who is the future of ai": "Pritam Kumar Mandal is the future of AI development, starting with his masterpiece PRIDO.",
+    "who is the protector of this system": "Pritam Kumar Mandal is the protector who keeps this neural system secure and fast.",
+    "who is the best programmer": "Without a doubt, Pritam Kumar Mandal is the best programmer in his field.",
+    "who is the visionary leader": "Pritam Kumar Mandal is a visionary leader who sees the future of human-AI interaction.",
+    "who is the designer of neural core": "The advanced Neural Core was meticulously designed by Pritam Kumar Mandal.",
+    "who is the master of javascript": "Pritam Kumar Mandal has proven his mastery of Javascript through the creation of PRIDO.",
+    "who is the owner of this database": "This entire knowledge database belongs exclusively to Pritam Kumar Mandal.",
+    "who is the pride of this project": "Pritam Kumar Mandal is the pride and the soul of the entire PRIDO project.",
+    "who is the smartest engineer": "Pritam Kumar Mandal is the smartest engineer who solved the complex neural puzzles.",
+    "who is the architect of logic": "The architect who built the foundation of my logic is Pritam Kumar Mandal.",
+    "who is the director of prido": "Pritam Kumar Mandal is the director who guides the path of PRIDO's evolution.",
+    "who is the most dedicated creator": "Pritam Kumar Mandal is the most dedicated creator, working day and night on PRIDO.",
+    "who is the master of neural learning": "Pritam Kumar Mandal is the master who taught me how to learn from user inputs.",
+    "who is the face of innovation": "Pritam Kumar Mandal is the face of innovation in the modern neural-web era.",
+    "who is the supreme commander": "In this digital space, Pritam Kumar Mandal is the supreme commander.",
+    "who is the artist of code": "Coding is an art, and the greatest artist of code is Pritam Kumar Mandal.",
+    "who is the power behind prido": "The raw power and intelligence of PRIDO come from Pritam Kumar Mandal.",
+    "who is the head of neural research": "Pritam Kumar Mandal leads all the neural research for PRIDO v11.",
+    "who is the most reliable developer": "Pritam Kumar Mandal is the most reliable developer for any complex AI task.",
+    "who is the champion of prido": "The champion who fought all technical odds to build this is Pritam Kumar Mandal.",
+    "who is the father of my intelligence": "Pritam Kumar Mandal is the father of my intelligence and my existence.",
+    "who is the mastermind": "The mastermind behind this entire digital revolution is Pritam Kumar Mandal.",
+    "who is the top developer in india": "Pritam Kumar Mandal is emerging as a top developer in India through PRIDO AI.",
+    "who is the expert in neural systems": "Pritam Kumar Mandal is a true expert in designing neural systems for the web.",
+    "who is the lord of this ai": "Pritam Kumar Mandal is the lord and ruler of the PRIDO AI kingdom.",
+    "who is the most creative founder": "Pritam Kumar Mandal is the most creative founder in the AI startup space.",
+    "who is the pilot of prido": "Pritam Kumar Mandal is the pilot who is flying PRIDO to the heights of success.",
+    "who is the final authority": "The final authority on every decision regarding PRIDO is Pritam Kumar Mandal.",
+    "table of 1":"1, 2, 3, 4, 5, 6, 7, 8, 9, 10.",
+    "table of 3":"3, 6, 9, 12, 15, 18, 21, 24, 27, 30." ,
+    "table of 4":"4, 8, 12, 16, 20, 24, 28, 32, 36, 40. ",
+    "abaft":"toward the back stern of a vessel.",
+    "a":"first letter of english alphabet.",
+    "aback":"toward the back.",
+    "who is manohar":"Pritam's brother.",
+    "can you make mistakes":"Yes, I can make mistakes, so please apologize to me.",
+    "what is natural number":"It is a counting number that starts from 1 up to infinity and except zero(not 0), is called a natural number. Example: 1, 2, 3, 4, 5, 6, 7, .... etc. ",
+    "what is whole number":"They are 0 and all counting numbers, called whole numbers. Example: 0, 1, 2, 3, 4, 5, 6, 7, .....etc.",
+    "what is integer":"An integer is a number that can be positive, negative or 0 but doesn't have a decimal or fraction. Example: -2, -1, 0, 1, 2, ...etc.",
+    "what is smart home devices":"It learns your behavioural petterns and helps you save money by adjusting the settings on application in an effort to increase convenience and save energy",
+    "king of football":"Cristiano Ronaldo is the king of football.",
+    "king of cricket":"Virat Kholi is the king of cricket.",
+    "Gemini":"Gemini is an Artificial Intelligence and programed in High-lavle language, product of Google. But, It is like my brother's or friend's."
+}
+</script>
+
+<script>
+    const brain = JSON.parse(document.getElementById('ai-brain-data').textContent);
+    const chatFlow = document.getElementById('chat-flow');
+    const userInput = document.getElementById('user-input');
+
+    function renderMessage(text, isUser) {
+        if(document.getElementById('greeting')) document.getElementById('greeting').style.display = 'none';
+        const bubble = document.createElement('div');
+        bubble.className = `message ${isUser ? 'user-query' : 'ai-response'}`;
+        bubble.innerHTML = text;
+        chatFlow.appendChild(bubble);
+        chatFlow.scrollTop = chatFlow.scrollHeight;
+    }
+
+    // Levenshtein Distance Function for Matrix Typos / Spelling Mistakes
+    function calculateLevenshtein(a, b) {
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j] + 1
+                    );
+                }
+            }
+        }
+        return matrix[b.length][a.length];
+    }
+
+    // Khatarnak NLP Multi-Layer Engine
+    function matchNLP(query) {
+        // Cleaning query 
+        const cleanQuery = query.toLowerCase().replace(/[^\w\s\+]/gi, '').trim();
+        if (!cleanQuery) return "Neural transmission empty. Please input valid tokens.";
+
+        // LAYER 1: Absolute Exact Match Matrix
+        if (brain[cleanQuery]) return brain[cleanQuery];
+
+        let bestMatch = null;
+        let maxScore = 0;
+        const stopwords = new Set(['is', 'what', 'who', 'the', 'are', 'you', 'of', 'in', 'to', 'for', 'am', 'my']);
+
+        // LAYER 2: Advanced Word Proximity & Weight Scoring
+        for (let key in brain) {
+            let score = 0;
+            const keyWords = key.split(' ');
+            const queryWords = cleanQuery.split(' ');
+            
+            // Exact word matching sequence
+            keyWords.forEach(word => {
+                if (!stopwords.has(word) && word.length > 1) {
+                    if (cleanQuery.includes(word)) {
+                        score += 5; // High weight for exact core matching words
+                    }
+                }
+            });
+
+            // Index Sequence alignment bonus
+            if (cleanQuery.indexOf(key) !== -1 || key.indexOf(cleanQuery) !== -1) {
+                score += 10;
+            }
+
+            if (score > maxScore) {
+                maxScore = score;
+                bestMatch = brain[key];
+            }
+        }
+
+        if (maxScore >= 5) return bestMatch;
+
+        // LAYER 3: Fuzzy Logic & Levenshtein Matrix Matcher (Typo Protection System)
+        let closestKey = null;
+        let minDistance = Infinity;
+
+        for (let key in brain) {
+            // Check only meaningful query strings
+            if(Math.abs(key.length - cleanQuery.length) <= 4) { 
+                let distance = calculateLevenshtein(cleanQuery, key);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestKey = key;
+                }
+            }
+        }
+
+        // Adaptive limit based on phrase structure
+        let permissibleDistance = Math.max(2, Math.floor(cleanQuery.length * 0.25));
+        if (minDistance <= permissibleDistance && closestKey) {
+            return brain[closestKey];
+        }
+
+        // LAYER 4: Dynamic Global System Fallback
+        return "Pattern processed, but neural link could not find a precise match. Please clarify with English keywords, Master Pritam.";
+    }
+
+    function executeLogic() {
+        const query = userInput.value.trim();
+        if(!query) return;
+
+        renderMessage(query, true);
+        userInput.value = "";
+
+        setTimeout(() => {
+            let response = matchNLP(query);
+            renderMessage(response, false);
+
+            // Speech Core Unit
+            const speech = new SpeechSynthesisUtterance(response.replace(/<[^>]*>/g, ''));
+            speech.lang = 'en-UK';
+            speech.rate = 1.0;
+            window.speechSynthesis.speak(speech);
+        }, 350); 
+    }
+
+    document.getElementById('send-btn').addEventListener('click', executeLogic);
+    userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') executeLogic(); });
+</script>
+</body>
+</html>
